@@ -1,0 +1,9 @@
+DISPLAY = (1200, 600)
+CENTER = (600, 300)
+BLOCK = 40
+HALF_BLOCK = 20
+OFFSET = (0, 0)
+player = None
+draw_group = None
+map_view = None
+land = None
