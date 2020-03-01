@@ -8,6 +8,10 @@ class Item(Prop):
         super().__init__(location)
         self.display_level = Textbox()
 
+    def set_form(self, arg):
+        super().set_form(arg)
+        self.form.z = 10
+
     def add(self):
         r = super().add()
         self.display_level.add_batch()
@@ -15,6 +19,10 @@ class Item(Prop):
         return r
 
     def remove(self):
+        loot = self.tags.get('loot')
+        if loot:
+            from game.Factory import Factory
+            Factory.make(loot, self.pos)
         self.display_level.remove_batch()
         super().remove()
 
@@ -28,8 +36,9 @@ class Item(Prop):
             self.display_level.set(str(level))
 
     def update(self):
+        self.draw_synchronize()
         diff = self.pos.get_center() - self.vec
-        self.vec += diff * .2
+        self.vec += diff * .3
         bound_x, bound_y = Camera.get_relative_pos(self.vec.x, self.vec.y)
         self.form.place(bound_x, bound_y)
         self.display_level.update(bound_x + 15, bound_y + 25)

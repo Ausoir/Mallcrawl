@@ -9,21 +9,27 @@ class Generator:
     BLOCKED = ['D', 'S', 'X', 'W']
 
     @classmethod
-    def generate(cls, x, y):
-        location = cls(x, y)
+    def generate(cls, x, y, level):
+        location = cls(x, y, level)
         r = location.publish()
-        location.place_mobs(r, [['Shopper', 20]])
+        location.place_mobs(r, [['Shopper', 20 + level, 'b'],
+                                ['Hobo', level * 5 - 10, 'b'],
+                                ['Shoppest', level * 4 - 20, 'b']])
         return r
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, level):
         self.random = Random()
+        self.level = level
         self.floor = 'b'
         self.display_floor = 'w'
         self.outside_floor = '.'
         self.wall = 'B'
-        self.theme = {'D': 'Door', 'd': 'Gate', 'W': 'Window', 'E': 'Elevator',
-                      '1': 'Bottle', '2': 'Lamp', '3': 'Bed', '4': 'Sofa', '5': 'TV'}
-        self.background = {'!': self.display_floor}
+        self.theme = {'D': 'Door', 'd': 'Gate', 'W': 'Window', 'E': 'Elevator'}
+        self.appliance = ['Bed', 'Sofa', 'Clothing', 'Toilet', 'Sink', 'Kitchen', 'Crate',
+                          'Workshop', 'Lamp', 'Cart', 'TV', 'Chair']
+        self.loot = ['Drink', 'Food', 'Shovel', 'Pickaxe', 'Airhorn', 'Bat', 'Money']
+        self.background = {'!': self.display_floor, 'Van': self.outside_floor}
+        self.elevators = level - 1
         self.divide = 8
         self.thickness = 4
         self.width = x
@@ -66,13 +72,21 @@ class Generator:
                     if not background:
                         background = self.background['!']
                     location.tiles[self_y][self_x].set_terrain(background)
-                    Factory.make(terrain, location.get_tile(self_x, self_y))
+                    r = Factory.make(terrain, location.get_tile(self_x, self_y))
+                    if r.name == 'Van':
+                        r.tags.set('req', self.level * 2 + 1)
+                        r.update_display_level()
+                    elif r.name == 'K9Alpha':
+                        r.tags.increment('L', self.level * 2)
+                    elif r.name == 'Elevator':
+                        r.tags.increment('L', self.level)
+                        r.update_display_level()
                 else:
                     location.tiles[self_y][self_x].set_terrain(terrain)
         return location
 
     def run(self):
-        estate, garden = self.iterate(6, 0, self.width - 7, 8)
+        estate, garden = self.iterate(6, 1, self.width - 7, 8)
         estate2, garden2 = self.iterate(0, 10, self.width, self.height)
         self.build_entrance()
         for rect in garden + estate + garden2 + estate2:
@@ -165,10 +179,12 @@ class Generator:
                             self.str_map[y][x] = self.wall
                 else:
                     self.str_map[y][x] = self.outside_floor
+        self.str_map[4][3] = 'Van'
+        self.str_map[8][3] = 'm'
         self.str_map[3][self.width - 4] = 'E'
 
     def build_display(self, estate):
-        item = str(self.random.randint(1, 5))
+        item = self.appliance[self.random.randint(0, len(self.appliance) - 1)]
         for y in range(estate[1], estate[3]):
             for x in range(estate[0], estate[2]):
                 if x == estate[0] or x == estate[2] - 1 or y == estate[1] or y == estate[3] - 1:
@@ -185,8 +201,11 @@ class Generator:
             for x in range(estate[0], estate[2]):
                 if x == estate[0] or x == estate[2] - 1 or y == estate[1] or y == estate[3] - 1:
                     rand = self.random.randint(0, 30)
-                    if rand == 30:
+                    if rand == 20 and self.elevators > 0:
                         self.str_map[y][x] = 'E'
+                        self.elevators -= 1
+                    elif rand == 19:
+                        self.str_map[y][x] = 'Register'
                     elif rand % 2 == 0:
                         self.str_map[y][x] = ':'
                     else:
@@ -198,21 +217,56 @@ class Generator:
         for y in range(estate[1] + 1, estate[3] - 1):
             for x in range(estate[0] + 1, estate[2] - 1):
                 self.str_map[y][x] = 'w'
+        door = 'D'
+        cx = estate[0] + int((estate[2] - estate[0]) / 2)
+        cy = estate[1] + int((estate[3] - estate[1]) / 2)
+        buff = self.random.randint(1, 2 + self.level)
+        if buff == 1:
+            for y in range(estate[1] + 1, estate[3] - 1):
+                for x in range(estate[0] + 1, estate[2] - 1):
+                    self.str_map[y][x] = self.appliance[self.random.randint(0, len(self.appliance) - 1)]
+        elif buff == 2:
+            if self.random.randint(0, 2) == 0:
+                self.str_map[cy][cx] = 'Drink'
+            else:
+                self.str_map[cy][cx] = 'Food'
+        elif buff == 3:
+            self.str_map[cy][cx] = 'Airhorn'
+        elif buff == 4:
+            if self.random.randint(0, 1) == 1:
+                self.str_map[cy][cx] = 'Pickaxe'
+            else:
+                self.str_map[cy][cx] = 'Shovel'
+        elif buff == 5:
+            buff_item = self.random.randint(0, 1)
+            if buff_item == 1:
+                self.str_map[cy][cx] = 'Money'
+            else:
+                self.str_map[cy][cx] = 'Bat'
+        else:
+            if self.elevators <= 0:
+                for y in range(estate[1] + 1, estate[3] - 1):
+                    for x in range(estate[0] + 1, estate[2] - 1):
+                        self.str_map[y][x] = 'Crate'
+                return
+            self.str_map[cy][cx] = 'E'
+            self.elevators -= 1
+            door = self.display_floor
         for x in range(estate[0], estate[2]):
-            self.str_map[estate[1]][x] = self.wall
-            self.str_map[estate[3] - 1][x] = self.wall
+            wall = self.wall
+            if estate[0] < x < estate[2] - 1 and self.random.randint(1, 4) == 1:
+                wall = 'W'
+            self.str_map[estate[1]][x] = wall
+            self.str_map[estate[3] - 1][x] = wall
         for y in range(estate[1], estate[3]):
-            self.str_map[y][estate[0]] = self.wall
-            self.str_map[y][estate[2] - 1] = self.wall
+            wall = self.wall
+            if estate[1] < y < estate[3] - 1 and self.random.randint(1, 12) == 1:
+                wall = 'W'
+            self.str_map[y][estate[0]] = wall
+            self.str_map[y][estate[2] - 1] = wall
         door_pos = self.random.randint(1, 4)
         door_ry = self.random.randint(estate[1] + 2, estate[3] - 2)
         door_rx = self.random.randint(estate[0] + 2, estate[2] - 2)
-        door = 'D'
-        if self.random.randint(1, 2) == 1:
-            x = estate[0] + int((estate[2] - estate[0]) / 2)
-            y = estate[1] + int((estate[3] - estate[1]) / 2)
-            self.str_map[y][x] = 'E'
-            door = self.display_floor
         if door_pos == 1:
             self.str_map[door_ry][estate[0]] = door
         elif door_pos == 2:
@@ -249,9 +303,14 @@ class Generator:
 
     def place_mobs(self, location, mobs):
         for mob_data in mobs:
-            for i in range(mob_data[1]):
+            count = mob_data[1]
+            tries = mob_data[1] + 5
+            while count > 0 and tries > 0:
                 x = self.random.randint(1, len(location.tiles[0]) - 2)
                 y = self.random.randint(1, len(location.tiles) - 2)
                 tile = location.get_tile(x, y)
-                if not tile.is_land(Tile.CHECK_SOLID):
+                if tile.terrain == mob_data[2] and not tile.is_land(Tile.CHECK_SOLID):
                     Factory.make(mob_data[0], tile)
+                    count -= 1
+                else:
+                    tries -= 1

@@ -3,17 +3,17 @@ from pyglet.text import Label
 
 
 class Textbox:
-    color = (40, 40, 40, 200)
-    transparent = (0, 0, 0, 0)
 
     def __init__(self):
         self.x = 0
         self.y = 0
+        self.color = (120, 120, 120, 180)
+        self.transparent = (0, 0, 0, 0)
         self.visible = True
         self.text = Label('', x=0, y=-1000,
                           font_size=24,
                           group=Global.draw_group.group_gui,
-                          color=Textbox.color,
+                          color=self.color,
                           anchor_x='center', anchor_y='center')
 
     def add_batch(self):
@@ -24,9 +24,9 @@ class Textbox:
 
     def bound(self, visible):
         if visible and self.visible:
-            self.text.color = Textbox.color
+            self.text.color = self.color
         else:
-            self.text.color = Textbox.transparent
+            self.text.color = self.transparent
 
     def update(self, x, y):
         self.text.x = x

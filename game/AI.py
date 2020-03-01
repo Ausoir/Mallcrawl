@@ -1,6 +1,7 @@
 from random import Random
 
 from game import Global
+from game.Item import Item
 from game.Task import Attack
 from game.Turn import Turn
 from game.Unit import Unit
@@ -22,17 +23,20 @@ class Shopper(Unit):
         super().remove()
 
     def turn(self):
-        self.action.next_action = ('idle', 'left', 'up', 'right', 'down')[self.random.randint(0, 4)]
-        r = self.action.turn()
-        if self.action.delay == 0 and not r:
+        self.direction = self.random.randint(1, 4)
+        self.next_action = self.random.randint(0, 1)
+        r = self.action()
+        self.update_display_level()
+        if self.delay == 0 and not r:
             return True
         return r
 
 
-class Elevator(Shopper):
+class Elevator(Unit):
     def __init__(self, location):
         super().__init__(location)
         self.delay = 0
+        self.random = Random()
 
     def add(self):
         r = super().add()
@@ -40,17 +44,28 @@ class Elevator(Shopper):
         return r
 
     def remove(self):
+        Item.remove(self)
         Turn.remove(self.turn)
-        super().remove()
+
+    def decay(self):
+        Item.decay(self)
 
     def turn(self):
-        if self.delay > 0:
-            self.delay -= 1
-        elif self.location.spawn >= 1 and self.random.randint(1, 16) == 1:
-            self.location.spawn -= 1
+        self.delay += 1
+        if self.delay > 99 and self.random.randint(1, 16) == 1:
             from game.Factory import Factory
-            Factory.make('Cop', self.pos)
-            self.delay = 40
+            level = Global.player.tags.get('R')
+            rating = self.random.randint(0, level)
+            if rating < 2:
+                Factory.make('Cop', self.pos)
+            elif rating < 4:
+                Factory.make('Dog', self.pos)
+            elif rating < 7:
+                Factory.make('Agent', self.pos)
+            else:
+                Factory.make('K9Alpha', self.pos)
+            self.delay -= 100
+        self.update_display_level()
         return True
 
 
@@ -65,10 +80,11 @@ class Cop(Shopper):
         return r
 
     def turn(self):
-        self.action.next_action = 'idle'
+        self.next_action = 0
         self.task.update()
         self.task.perform()
-        r = self.action.turn()
-        if self.action.delay == 0 and not r:
+        r = self.action()
+        self.update_display_level()
+        if self.delay == 0 and not r:
             return True
         return r

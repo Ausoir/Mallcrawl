@@ -25,9 +25,6 @@ class MapView:
         self.view_range_y = 0
         self.new_start = None
 
-    def on_resize(self):
-        self.on_sight_change()
-
     @staticmethod
     def ratio_y(arg):
         return int(arg * .6)
@@ -100,11 +97,9 @@ class MapView:
                     cell[2].set(Data.get_cache(tile.get_image()))
                     cell[2].face_direction(tile.direction)
                     cell[2].show(True)
-                    row = tile.y - y + self.sight_range_y
                     for thing in tile.things:
                         if not thing.removed:
                             thing.bound(True)
-                            thing.set_row(row)
                             self.objects.append(thing)
                 else:  # tile is out of bounds
                     cell[2].show(False)

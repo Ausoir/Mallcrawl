@@ -99,7 +99,7 @@ class Path(Task):  # path finding A*
     def perform(self):
         if self.result:
             self.host.face_toward(self.result[0])
-            self.host.input('walk')
+            self.host.next_action = 1
             self.result = []
         if (self.host.pos - self.target).difference() <= 1:
             return True
@@ -157,7 +157,7 @@ class Attack(Task):
             dist = self.target.pos - self.host.pos
             if dist.difference() == 1:
                 self.host.face_toward(self.target.pos)
-                self.host.input('walk')
+                self.host.next_action = 1
             elif self.move.out_of_reach:
                 self.move.target = self.target.pos
                 self.move.perform()

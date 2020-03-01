@@ -4,6 +4,12 @@ class Turn:
     turn_team = 1
 
     @staticmethod
+    def init():
+        Turn.all = [[], []]
+        Turn.current = []
+        Turn.turn_team = 1
+
+    @staticmethod
     def update():
         queue = []
         while Turn.current:

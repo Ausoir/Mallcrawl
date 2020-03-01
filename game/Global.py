@@ -7,3 +7,4 @@ player = None
 draw_group = None
 map_view = None
 land = None
+main = None

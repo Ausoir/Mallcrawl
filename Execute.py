@@ -12,26 +12,40 @@ from pyglet.gl import *
 
 # noinspection PyAbstractClass
 class Execute(pyglet.window.Window):
-    input_map = {'w': 'up', 'a': 'left', 's': 'down', 'd': 'right'}
+    input_map = {'w': 2, 'a': 1, 's': 4, 'd': 3}
 
     def __init__(self):
         super(Execute, self).__init__(1000, 600, 'Mallcrawl', vsync=False, resizable=False)
         self.dt = 0
-        self.fps = 1/44.0
+        self.fps = 1/60.0
+        self.end = False
+        Global.main = self
         Global.map_view = MapView()
         Global.draw_group = DrawGroup()
         Data.init()
-        Global.land = Generator.generate(40, 20)
-        Global.player = Factory.make_user(Global.land.tiles[0][0])
+        Execute.start()
+        glEnable(pyglet.gl.GL_BLEND)
+        glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
+        glClearColor(0, 0, 0, 0)
+
+    @staticmethod
+    def start():
+        Turn.init()
+        if Global.player and Global.player.removed == 0:
+            level = Global.player.tags.get('R')
+            Global.land = Generator.generate(20 * level, 15 * level, level)
+            Global.player.location = Global.land
+            Global.player.relocate(3, 5)
+        else:
+            Global.land = Generator.generate(30, 12, 1)
+            Global.player = Factory.make_user(Global.land.tiles[5][3])
         Turn.add(0, Global.player.turn)
         Turn.add(0, Global.map_view.update_region)
         Turn.add(0, Global.map_view.turn)
         Turn.update()
         Turn.update()
         Turn.update()
-        glEnable(pyglet.gl.GL_BLEND)
-        glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
-        glClearColor(0, 0, 0, 0)
+        Global.map_view.on_sight_change()
 
     def on_text_motion(self, motion):
         text = pyglet.window.key.symbol_string(motion)
@@ -44,7 +58,8 @@ class Execute(pyglet.window.Window):
     def input(text):
         if text in Execute.input_map:
             action = Execute.input_map[text]
-            Global.player.input(action)
+            Global.player.direction = action
+            Global.player.next_action = 1
 
     def on_resize(self, width, height):
         Global.DISPLAY = (int(width / 2) * 2, int(height / 2) * 2)
@@ -66,6 +81,9 @@ class Execute(pyglet.window.Window):
             Camera.update()
             Turn.update()
             Global.map_view.update()
+            if self.end:
+                Execute.start()
+                self.end = False
         pyglet.clock.schedule_once(self.loop, self.fps - self.dt)
 
     def on_draw(self):

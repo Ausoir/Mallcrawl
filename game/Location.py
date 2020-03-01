@@ -14,7 +14,7 @@ class Location:
         self.tiles = [[Tile(self, '.', 0, 0)]]
         self.header = None
         self.track = Player()
-        self.spawn = 0
+        self.mode = 0
 
     def play_sound(self, sound):
         from game.Data import Data
