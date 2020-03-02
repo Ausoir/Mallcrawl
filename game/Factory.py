@@ -36,15 +36,15 @@ class Factory:
             'Corpse': [Item, 'g_0x3', ['L:1', 'ob:3']],
             'Player': [Hero, 'g_1x3', ['L:1', 'ob:3', 'R:1']],
             'Van': [Van, 'g_2x3', ['s:0', 'req:3', 'ob:0']],
-            'Elevator': [Elevator, 'g_3x3', ['L:8', 'ob:3']],
+            'Elevator': [Elevator, 'g_3x3', ['L:8', 'ob:2']],
             'Shopper': [Shopper, 'g_5x3', ['L:1', 'ob:3', 'loot:Bag']],
-            'Shoppest': [Shopper, 'g_9x3', ['L:33', 'spd:-4', 'ob:3', 'loot:Money']],
+            'Shoppest': [Shopper, 'g_9x3', ['L:13', 'spd:-4', 'ob:3', 'loot:Money']],
             'Hobo': [Shopper, 'g_6x3', ['L:8', 'spd:2', 'ob:3']],
             'Dog': [Cop, 'g_7x3', ['L:2', 'spd:-2', 'ob:3']],
-            'Agent': [Cop, 'g_8x3', ['L:50', 'spd:1', 'ob:3', 'loot:Elevator']],
+            'Agent': [Cop, 'g_8x3', ['L:33', 'spd:2', 'ob:3', 'loot:Elevator']],
             'Cop': [Cop, 'g_4x3', ['L:3', 'ob:3', 'loot:Nightstick']],
             'Scanner': [Scanner, 'g_11x3', ['v:1', 'ob:0']],
-            'K9Alpha': [Cop, 'g_10x3', ['L:9', 'spd:-7', 'ob:3', 'loot:Dog']]
+            'K9Alpha': [Cop, 'g_10x3', ['L:7', 'spd:-7', 'ob:3', 'loot:Dog']]
             }
 
     @staticmethod

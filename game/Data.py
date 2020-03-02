@@ -17,7 +17,7 @@ class Data:
         Data.initialize_image('g', [12, 4])
 
     @staticmethod
-    def direct(fdir, path='game/'):
+    def direct(fdir, path='data/'):
         return os.path.join(path + fdir)
 
     @staticmethod

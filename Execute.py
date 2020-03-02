@@ -1,3 +1,5 @@
+from random import Random
+
 from game import Global
 import pyglet
 from game.Camera import Camera
@@ -20,6 +22,7 @@ class Execute(pyglet.window.Window):
         self.fps = 1/60.0
         self.end = False
         Global.main = self
+        Global.r = Random()
         Global.map_view = MapView()
         Global.draw_group = DrawGroup()
         Data.init()
@@ -31,14 +34,16 @@ class Execute(pyglet.window.Window):
     @staticmethod
     def start():
         Turn.init()
+        ratio = Global.r.random() * .6 + .2
         if Global.player and Global.player.removed == 0:
             level = Global.player.tags.get('R')
-            Global.land = Generator.generate(20 * level, 15 * level, level)
+            land = min(level * 15 + 20, 100)
+            Global.land = Generator.generate(int(land * ratio), int(land * (1 - ratio)), level)
             Global.player.location = Global.land
-            Global.player.relocate(3, 5)
+            Global.player.relocate(3, 3)
         else:
-            Global.land = Generator.generate(30, 12, 1)
-            Global.player = Factory.make_user(Global.land.tiles[3][3])
+            Global.land = Generator.generate(int(40 * ratio), int(40 * (1 - ratio)), 1)
+            Global.player = Factory.make_user(Global.land.tiles[2][3])
         Turn.add(0, Global.player.turn)
         Turn.add(0, Global.map_view.update_region)
         Turn.add(0, Global.map_view.turn)

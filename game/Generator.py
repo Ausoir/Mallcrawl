@@ -10,9 +10,14 @@ class Generator:
     def generate(cls, x, y, level):
         location = cls(x, y, level)
         r = location.publish()
-        location.place_mobs(r, [['Shopper', 12 + level * 3, 'b'],
-                                ['Hobo', level * 5 - 10, 'b'],
-                                ['Shoppest', level * 4 - 20, 'b']])
+        mobs = [['Shopper', 12, 'b']]
+        if level > 2:
+            mobs.append(['Hobo', 5, 'b'])
+        if level > 6:
+            mobs.append(['Shoppest', 5, 'b'])
+        if location.buffs > 0:
+            mobs.append(['Food', location.buffs, 'w'])
+        location.place_mobs(r, mobs)
         return r
 
     def __init__(self, x, y, level):
@@ -25,9 +30,9 @@ class Generator:
         self.theme = {'D': 'Door', 'W': 'Window', 'E': 'Elevator'}
         self.appliance = ['Bed', 'Sofa', 'Clothing', 'Toilet', 'Sink', 'Kitchen', 'Crate',
                           'Workshop', 'Lamp', 'Cart', 'TV', 'Chair']
-        self.loot = ['Drink', 'Food', 'Shovel', 'Pickaxe', 'Airhorn', 'Bat', 'Money']
         self.background = {'!': self.display_floor, 'Van': self.outside_floor}
-        self.elevators = level - 1
+        self.elevators = level - 2
+        self.buffs = int(level / 2) - 1
         self.divide = 8
         self.thickness = 4
         self.width = x
@@ -157,9 +162,9 @@ class Generator:
             gate = 'Gate'
         else:
             gate = 'Scanner'
-        for x in range(6):
-            for y in range(8):
-                if x == 5 or y == 7:
+        for x in range(5):
+            for y in range(5):
+                if x == 4 or y == 4:
                     if x == 3:
                         self.str_map[y][x] = gate
                     else:
@@ -170,11 +175,11 @@ class Generator:
                             self.str_map[y][x] = self.wall
                 else:
                     self.str_map[y][x] = self.outside_floor
-        for x in range(self.width - 6, self.width):
-            for y in range(8):
-                if x == self.width - 6 or y == 7:
-                    if x == self.width - 4:
-                        self.str_map[y][x] = gate
+        for x in range(self.width - 4, self.width):
+            for y in range(4):
+                if x == self.width - 4 or y == 3:
+                    if x == self.width - 2:
+                        self.str_map[y][x] = 'Gate'
                     else:
                         rand = self.random.randint(1, 16)
                         if rand == 1:
@@ -182,14 +187,17 @@ class Generator:
                         else:
                             self.str_map[y][x] = self.wall
                 else:
-                    self.str_map[y][x] = self.outside_floor
+                    self.str_map[y][x] = self.display_floor
         if self.level == 1:
-            self.str_map[2][3] = 'Van'
-            self.str_map[5][3] = 'Food'
+            self.str_map[2][2] = 'Van'
         else:
-            self.str_map[4][3] = 'Van'
-        self.str_map[8][3] = 'm'
-        self.str_map[3][self.width - 4] = 'E'
+            self.str_map[2][3] = 'Van'
+        if self.level == 1 or self.level == 3:
+            self.str_map[3][3] = 'Food'
+        self.str_map[0][0] = 'Food'
+        self.str_map[0][1] = 'Money'
+        self.str_map[5][3] = 'm'
+        self.str_map[1][self.width - 2] = 'E'
 
     def build_display(self, estate):
         item = self.appliance[self.random.randint(0, len(self.appliance) - 1)]
@@ -230,24 +238,28 @@ class Generator:
         cy = estate[1] + int((estate[3] - estate[1]) / 2)
         buff = self.random.randint(0, self.level)
         if buff == 1:
-            for y in range(estate[1] + 1, estate[3] - 1):
-                for x in range(estate[0] + 1, estate[2] - 1):
-                    self.str_map[y][x] = self.appliance[self.random.randint(0, len(self.appliance) - 1)]
-        elif buff == 2:
-            if self.random.randint(0, 1) == 1:
-                self.str_map[cy][cx] = 'Drink'
+            if self.buffs > 0:
+                if self.random.randint(0, 1) == 1:
+                    self.str_map[cy][cx] = 'Drink'
+                else:
+                    self.str_map[cy][cx] = 'Food'
+                self.buffs -= 1
             else:
-                self.str_map[cy][cx] = 'Food'
-        elif buff == 3:
+                for y in range(estate[1] + 1, estate[3] - 1):
+                    for x in range(estate[0] + 1, estate[2] - 1):
+                        self.str_map[y][x] = self.appliance[self.random.randint(0, len(self.appliance) - 1)]
+        elif buff == 2:
             self.str_map[cy][cx] = 'Airhorn'
+        elif buff == 3:
+            buff_item = self.random.randint(0, 2)
+            if buff_item == 0:
+                self.str_map[cy][cx] = 'Pickaxe'
+            elif buff_item == 1:
+                self.str_map[cy][cx] = 'Shovel'
+            else:
+                self.str_map[cy][cx] = 'Ducttape'
         elif buff == 4:
             if self.random.randint(0, 1) == 1:
-                self.str_map[cy][cx] = 'Pickaxe'
-            else:
-                self.str_map[cy][cx] = 'Shovel'
-        elif buff == 5:
-            buff_item = self.random.randint(0, 1)
-            if buff_item == 1:
                 self.str_map[cy][cx] = 'Money'
             else:
                 self.str_map[cy][cx] = 'Bat'

@@ -122,14 +122,18 @@ class Unit(Item):
                             from game.Factory import Factory
                             Factory.make('Grave', thing.pos)
                     elif thing.name == 'Airhorn':
+                        self.sound('airhorn')
                         to_remove = []
-                        from game.AI import Cop
-                        from game.AI import Shopper
                         for i in self.location.population:
-                            if i != self and i.tags.get('L', 0) > 0 and (isinstance(i, Cop) or isinstance(i, Shopper)):
+                            if i != self and i.tags.get('L', 0) > 0:
                                 to_remove.append(i)
+                            elif i.name == 'Scanner':
+                                i.tags.increment('v', -1)
                         for i in to_remove:
-                            i.remove()
+                            if i.name in ['Agent', 'K9Alpha']:
+                                i.remove()
+                            else:
+                                Item.decay(i)
                     else:
                         self.decay()
                     thing.remove()
@@ -155,7 +159,7 @@ class Unit(Item):
                     if thing.name == 'Ducttape' and self.weapon and self.weapon.removed == 0:
                         self.sound('buff')
                         thing.remove()
-                        self.weapon.tags.increment('L', 1)
+                        self.weapon.tags.increment('L', 2)
                         self.delay += 4
                         return True
                     elif thing.name == 'Food':

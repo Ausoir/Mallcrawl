@@ -51,14 +51,16 @@ class Scanner(Unit):
         threshold = self.tags.get('v', 0)
         if self.beep > 0:
             self.beep -= 1
+        elif threshold > 0:
+            self.display_level.set('Scan Level ' + str(threshold))
         else:
-            self.display_level.set('Scan Level ' + str(threshold + 1))
+            self.display_level.set('Scanner disabled')
         for i in self.pos.things.copy():
             if i != self and isinstance(i, Unit) and i.weapon and i.weapon.get_level() <= threshold:
                 i.weapon.remove()
                 i.wield(None)
-                self.display_level.set('BEEP! Item Level below ' + str(threshold + 1) + '!')
-                self.beep = 40
+                self.display_level.set('BEEP! Item level too low!')
+                self.beep = 20
         return True
 
 
@@ -82,7 +84,7 @@ class Elevator(Unit):
 
     def turn(self):
         self.delay += 1
-        if self.delay > 99 and self.random.randint(1, 16) == 1:
+        if self.delay > 160 and self.random.randint(1, 16) == 1 and len(self.location.population) < 900:
             from game.Factory import Factory
             level = Global.player.tags.get('R')
             rating = self.random.randint(0, level)
@@ -94,7 +96,7 @@ class Elevator(Unit):
                 Factory.make('Agent', self.pos)
             else:
                 Factory.make('K9Alpha', self.pos)
-            self.delay -= 100
+            self.delay -= 160
         self.update_display_level()
         return True
 
