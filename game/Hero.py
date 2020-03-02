@@ -19,6 +19,8 @@ class Hero(Unit):
             else:
                 self.wield(None)
                 self.tags.increment('R', 1)
+                if self.tags.get('spd', 0) < 0:
+                    self.tags.increment('spd', 1)
             Global.main.end = True
         elif self.location.mode > 0:
             self.location.mode += 1
@@ -36,10 +38,10 @@ class Hero(Unit):
                 self.vec += (front - self.pos) * 15
                 self.location.play_sound('hit')
                 if thing.get_level() <= self.get_level():
-                    if thing.name == 'Corpse' and self.weapon and self.weapon.name == 'Shovel':
-                        from game.Factory import Factory
-                        Factory.make('Grave', thing.pos)
-                        self.weapon.tags.increment('L', 1)
+                    if self.weapon and self.weapon.name == 'Shovel':
+                        if thing.name == 'Corpse':
+                            from game.Factory import Factory
+                            Factory.make('Grave', thing.pos)
                     elif thing.name == 'Airhorn':
                         to_remove = []
                         from game.AI import Cop
@@ -73,8 +75,10 @@ class Van(Item):
         if s >= req:
             self.display_level.set('Round ' + str(Global.player.tags.get('R')) + ' Clear!')
             self.location.mode = 1
-        else:
+        elif s > 0:
             self.display_level.set(str(s) + ' / ' + str(req))
+        else:
+            self.display_level.set('Bring me the goods!')
 
     def supply(self, item):
         self.tags.increment('s', item.get_level())

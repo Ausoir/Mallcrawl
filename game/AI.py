@@ -32,6 +32,28 @@ class Shopper(Unit):
         return r
 
 
+class Scanner(Unit):
+    def __init__(self, location):
+        super().__init__(location)
+
+    def add(self):
+        r = super().add()
+        Turn.add(1, self.turn)
+        return r
+
+    def remove(self):
+        Item.remove(self)
+        Turn.remove(self.turn)
+
+    def turn(self):
+        threshold = self.tags.get('v', 0)
+        for i in self.pos.things.copy():
+            if i != self and isinstance(i, Unit) and i.weapon and i.weapon.get_level() <= threshold:
+                i.weapon.remove()
+                i.wield(None)
+        return True
+
+
 class Elevator(Unit):
     def __init__(self, location):
         super().__init__(location)

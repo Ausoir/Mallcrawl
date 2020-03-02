@@ -20,6 +20,7 @@ class Tile(Space):
                   'b': ['floor', 'g_11x0', 0],
                   'w': ['wood', 'g_4x0', 0],
                   'm': ['mat', 'g_0x1', 0],
+                  'x': ['slow', 'g_11x2', 2],
                   'C': ['crate', 'g_2x1', 10],
                   ':': ['shelf', 'g_5x0', 11],
                   ';': ['shelf2', 'g_2x0', 10]

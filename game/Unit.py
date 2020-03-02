@@ -98,14 +98,15 @@ class Unit(Item):
                     i.remove()
                 self.sound('hit')
                 front.set_terrain('b')
+                self.delay = 4
             elif self.attack(front):
                 return
-            speed = self.tags.get('spd', 0) + 4
+            speed = self.tags.get('spd', 0) + 5
             if front.type < 10:
                 speed += front.type
             if speed < 10:
                 if self.move_toward(self.direction):
-                    self.delay = max(1, speed)
+                    self.delay += max(1, speed)
                     if not self.grab():
                         self.sound('step')
 
@@ -135,23 +136,28 @@ class Unit(Item):
                 if thing.obstruct_type == 4:
                     self.sound('grab')
                     self.wield(thing)
-                    self.delay *= 2
+                    self.delay += 4
                     return True
                 elif thing.name == 'Van' and self.weapon:
                     thing.supply(self.weapon)
                     self.weapon = None
                     self.update_display_level()
-                elif not self.weapon or self.weapon.name != 'Pickaxe':
-                    if thing.name == 'Food':
+                else:
+                    if thing.name == 'Ducttape' and self.weapon and self.weapon.removed == 0:
+                        self.sound('buff')
+                        thing.remove()
+                        self.weapon.tags.increment('L', 1)
+                        self.delay += 4
+                        return True
+                    elif thing.name == 'Food':
                         self.sound('buff')
                         thing.remove()
                         self.tags.increment('L', 1)
-                        self.update_display_level()
-                        self.delay *= 2
+                        self.delay += 4
                         return True
                     elif thing.name == 'Drink':
                         self.sound('buff')
                         thing.remove()
                         self.tags.increment('spd', -1, add=True)
-                        self.delay *= 2
+                        self.delay += 4
                         return True

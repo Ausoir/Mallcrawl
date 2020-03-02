@@ -1,5 +1,5 @@
 from game import Global
-from game.AI import Cop, Elevator, Shopper
+from game.AI import Cop, Elevator, Shopper, Scanner
 from game.Hero import Hero, Van
 from game.Item import Item
 from game.Prop import Prop
@@ -27,22 +27,24 @@ class Factory:
             'Bag': [Item, 'g_6x2', ['L:1', 'ob:4']],
             'Pickaxe': [Item, 'g_7x2', ['L:3', 'ob:4']],
             'Nightstick': [Item, 'g_8x2', ['L:1', 'ob:4']],
-            'Shovel': [Item, 'g_9x2', ['L:0', 'ob:4']],
+            'Shovel': [Item, 'g_9x2', ['L:2', 'ob:4']],
             'Airhorn': [Item, 'g_10x2', ['L:2', 'ob:5']],
+            'Ducttape': [Prop, 'g_11x2', ['ob:0']],
             'Chair': [Item, 'g_4x2', ['L:2', 'ob:4']],
             'Bat': [Item, 'g_3x2', ['L:5', 'ob:4']],
             'Money': [Item, 'g_2x2', ['L:9', 'ob:4']],
             'Corpse': [Item, 'g_0x3', ['L:1', 'ob:3']],
-            'Player': [Hero, 'g_1x3', ['L:2', 'ob:3', 'R:1']],
+            'Player': [Hero, 'g_1x3', ['L:1', 'ob:3', 'R:1']],
             'Van': [Van, 'g_2x3', ['s:0', 'req:3', 'ob:0']],
-            'Elevator': [Elevator, 'g_3x3', ['L:9', 'ob:3']],
+            'Elevator': [Elevator, 'g_3x3', ['L:8', 'ob:3']],
             'Shopper': [Shopper, 'g_5x3', ['L:1', 'ob:3', 'loot:Bag']],
-            'Shoppest': [Shopper, 'g_9x3', ['L:33', 'ob:3', 'loot:Food']],
-            'Hobo': [Shopper, 'g_6x3', ['L:8', 'ob:3']],
+            'Shoppest': [Shopper, 'g_9x3', ['L:33', 'spd:-4', 'ob:3', 'loot:Money']],
+            'Hobo': [Shopper, 'g_6x3', ['L:8', 'spd:2', 'ob:3']],
             'Dog': [Cop, 'g_7x3', ['L:2', 'spd:-2', 'ob:3']],
-            'Agent': [Cop, 'g_8x3', ['L:9', 'spd:-1', 'ob:3']],
+            'Agent': [Cop, 'g_8x3', ['L:50', 'spd:1', 'ob:3', 'loot:Elevator']],
             'Cop': [Cop, 'g_4x3', ['L:3', 'ob:3', 'loot:Nightstick']],
-            'K9Alpha': [Cop, 'g_10x3', ['L:10', 'spd:-7', 'ob:3', 'loot:Food']]
+            'Scanner': [Scanner, 'g_11x3', ['v:1', 'ob:0']],
+            'K9Alpha': [Cop, 'g_10x3', ['L:9', 'spd:-7', 'ob:3', 'loot:Dog']]
             }
 
     @staticmethod

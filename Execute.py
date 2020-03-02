@@ -38,7 +38,7 @@ class Execute(pyglet.window.Window):
             Global.player.relocate(3, 5)
         else:
             Global.land = Generator.generate(30, 12, 1)
-            Global.player = Factory.make_user(Global.land.tiles[5][3])
+            Global.player = Factory.make_user(Global.land.tiles[3][3])
         Turn.add(0, Global.player.turn)
         Turn.add(0, Global.map_view.update_region)
         Turn.add(0, Global.map_view.turn)

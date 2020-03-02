@@ -6,8 +6,6 @@ from game.Tile import Tile
 
 
 class Generator:
-    BLOCKED = ['D', 'S', 'X', 'W']
-
     @classmethod
     def generate(cls, x, y, level):
         location = cls(x, y, level)
@@ -24,7 +22,7 @@ class Generator:
         self.display_floor = 'w'
         self.outside_floor = '.'
         self.wall = 'B'
-        self.theme = {'D': 'Door', 'd': 'Gate', 'W': 'Window', 'E': 'Elevator'}
+        self.theme = {'D': 'Door', 'W': 'Window', 'E': 'Elevator'}
         self.appliance = ['Bed', 'Sofa', 'Clothing', 'Toilet', 'Sink', 'Kitchen', 'Crate',
                           'Workshop', 'Lamp', 'Cart', 'TV', 'Chair']
         self.loot = ['Drink', 'Food', 'Shovel', 'Pickaxe', 'Airhorn', 'Bat', 'Money']
@@ -74,13 +72,15 @@ class Generator:
                     location.tiles[self_y][self_x].set_terrain(background)
                     r = Factory.make(terrain, location.get_tile(self_x, self_y))
                     if r.name == 'Van':
-                        r.tags.set('req', self.level * 2 + 1)
+                        r.tags.set('req', self.level * 3)
                         r.update_display_level()
                     elif r.name == 'K9Alpha':
-                        r.tags.increment('L', self.level * 2)
+                        r.tags.increment('L', self.level)
                     elif r.name == 'Elevator':
                         r.tags.increment('L', self.level)
                         r.update_display_level()
+                    elif r.name == 'Scanner':
+                        r.tags.set('v', self.level - 1)
                 else:
                     location.tiles[self_y][self_x].set_terrain(terrain)
         return location
@@ -153,11 +153,15 @@ class Generator:
         return estate, garden
 
     def build_entrance(self):
+        if self.level < 2:
+            gate = 'Gate'
+        else:
+            gate = 'Scanner'
         for x in range(6):
             for y in range(8):
                 if x == 5 or y == 7:
                     if x == 3:
-                        self.str_map[y][x] = 'd'
+                        self.str_map[y][x] = gate
                     else:
                         rand = self.random.randint(1, 16)
                         if rand == 1:
@@ -170,7 +174,7 @@ class Generator:
             for y in range(8):
                 if x == self.width - 6 or y == 7:
                     if x == self.width - 4:
-                        self.str_map[y][x] = 'd'
+                        self.str_map[y][x] = gate
                     else:
                         rand = self.random.randint(1, 16)
                         if rand == 1:
@@ -179,7 +183,11 @@ class Generator:
                             self.str_map[y][x] = self.wall
                 else:
                     self.str_map[y][x] = self.outside_floor
-        self.str_map[4][3] = 'Van'
+        if self.level == 1:
+            self.str_map[2][3] = 'Van'
+            self.str_map[6][3] = 'Food'
+        else:
+            self.str_map[4][3] = 'Van'
         self.str_map[8][3] = 'm'
         self.str_map[3][self.width - 4] = 'E'
 
@@ -226,7 +234,7 @@ class Generator:
                 for x in range(estate[0] + 1, estate[2] - 1):
                     self.str_map[y][x] = self.appliance[self.random.randint(0, len(self.appliance) - 1)]
         elif buff == 2:
-            if self.random.randint(0, 2) == 0:
+            if self.random.randint(0, 1) == 1:
                 self.str_map[cy][cx] = 'Drink'
             else:
                 self.str_map[cy][cx] = 'Food'
