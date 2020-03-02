@@ -194,8 +194,6 @@ class Generator:
             self.str_map[2][3] = 'Van'
         if self.level == 1 or self.level == 3:
             self.str_map[3][3] = 'Food'
-        self.str_map[0][0] = 'Food'
-        self.str_map[0][1] = 'Money'
         self.str_map[5][3] = 'm'
         self.str_map[1][self.width - 2] = 'E'
 
