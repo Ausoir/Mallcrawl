@@ -21,6 +21,7 @@ class Hero(Unit):
                 self.tags.increment('R', 1)
                 if self.tags.get('spd', 0) < 0:
                     self.tags.increment('spd', 1)
+            self.next_action = 0
             Global.main.end = True
         elif self.location.mode > 0:
             self.location.mode += 1
@@ -30,35 +31,6 @@ class Hero(Unit):
                 self.location.mode = 1
             else:
                 return super().turn()
-
-    def attack(self, front):
-        for thing in reversed(front.things):
-            level = thing.get_level()
-            if level > 0 and thing.tags.get('ob', 0) != 4:
-                self.vec += (front - self.pos) * 15
-                self.location.play_sound('hit')
-                if thing.get_level() <= self.get_level():
-                    if self.weapon and self.weapon.name == 'Shovel':
-                        if thing.name == 'Corpse':
-                            from game.Factory import Factory
-                            Factory.make('Grave', thing.pos)
-                    elif thing.name == 'Airhorn':
-                        to_remove = []
-                        from game.AI import Cop
-                        from game.AI import Shopper
-                        for i in self.location.population:
-                            if i != self and i.tags.get('L', 0) > 0 and (isinstance(i, Cop) or isinstance(i, Shopper)):
-                                to_remove.append(i)
-                        for i in to_remove:
-                            i.remove()
-                    else:
-                        self.decay()
-                    thing.remove()
-                elif self.weapon:
-                    thing.decay()
-                    self.decay()
-                self.delay = 4
-                return True
 
     def sound(self, track):
         self.location.play_sound(track)

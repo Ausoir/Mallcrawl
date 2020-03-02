@@ -35,9 +35,11 @@ class Shopper(Unit):
 class Scanner(Unit):
     def __init__(self, location):
         super().__init__(location)
+        self.beep = 0
 
     def add(self):
         r = super().add()
+        self.display_level.color = (255, 0, 0, 200)
         Turn.add(1, self.turn)
         return r
 
@@ -47,10 +49,16 @@ class Scanner(Unit):
 
     def turn(self):
         threshold = self.tags.get('v', 0)
+        if self.beep > 0:
+            self.beep -= 1
+        else:
+            self.display_level.set('Scan Level ' + str(threshold + 1))
         for i in self.pos.things.copy():
             if i != self and isinstance(i, Unit) and i.weapon and i.weapon.get_level() <= threshold:
                 i.weapon.remove()
                 i.wield(None)
+                self.display_level.set('BEEP! Item Level below ' + str(threshold + 1) + '!')
+                self.beep = 40
         return True
 
 
@@ -78,9 +86,9 @@ class Elevator(Unit):
             from game.Factory import Factory
             level = Global.player.tags.get('R')
             rating = self.random.randint(0, level)
-            if rating < 2:
+            if rating < 3:
                 Factory.make('Cop', self.pos)
-            elif rating < 4:
+            elif rating < 5:
                 Factory.make('Dog', self.pos)
             elif rating < 7:
                 Factory.make('Agent', self.pos)

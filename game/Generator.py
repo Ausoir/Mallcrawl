@@ -10,7 +10,7 @@ class Generator:
     def generate(cls, x, y, level):
         location = cls(x, y, level)
         r = location.publish()
-        location.place_mobs(r, [['Shopper', 20 + level, 'b'],
+        location.place_mobs(r, [['Shopper', 12 + level * 3, 'b'],
                                 ['Hobo', level * 5 - 10, 'b'],
                                 ['Shoppest', level * 4 - 20, 'b']])
         return r
@@ -185,7 +185,7 @@ class Generator:
                     self.str_map[y][x] = self.outside_floor
         if self.level == 1:
             self.str_map[2][3] = 'Van'
-            self.str_map[6][3] = 'Food'
+            self.str_map[5][3] = 'Food'
         else:
             self.str_map[4][3] = 'Van'
         self.str_map[8][3] = 'm'
@@ -228,7 +228,7 @@ class Generator:
         door = 'D'
         cx = estate[0] + int((estate[2] - estate[0]) / 2)
         cy = estate[1] + int((estate[3] - estate[1]) / 2)
-        buff = self.random.randint(1, 2 + self.level)
+        buff = self.random.randint(0, self.level)
         if buff == 1:
             for y in range(estate[1] + 1, estate[3] - 1):
                 for x in range(estate[0] + 1, estate[2] - 1):

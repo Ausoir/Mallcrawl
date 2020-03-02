@@ -117,16 +117,25 @@ class Unit(Item):
                 self.vec += (front - self.pos) * 15
                 self.sound('hit')
                 if thing.get_level() <= self.get_level():
-                    self.decay()
-                    thing.remove()
-                else:
-                    thing.decay()
-                    if self.weapon:
-                        self.decay()
+                    if self.weapon and self.weapon.name == 'Shovel':
+                        if thing.name == 'Corpse':
+                            from game.Factory import Factory
+                            Factory.make('Grave', thing.pos)
+                    elif thing.name == 'Airhorn':
+                        to_remove = []
+                        from game.AI import Cop
+                        from game.AI import Shopper
+                        for i in self.location.population:
+                            if i != self and i.tags.get('L', 0) > 0 and (isinstance(i, Cop) or isinstance(i, Shopper)):
+                                to_remove.append(i)
+                        for i in to_remove:
+                            i.remove()
                     else:
-                        self.remove()
-                if self.get_level() <= 0:
-                    print('level<0')
+                        self.decay()
+                    thing.remove()
+                elif self.weapon:
+                    thing.decay()
+                    self.decay()
                 self.delay = 4
                 return True
 
