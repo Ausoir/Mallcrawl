@@ -17,10 +17,11 @@ class Execute(pyglet.window.Window):
     input_map = {'w': 2, 'a': 1, 's': 4, 'd': 3}
 
     def __init__(self):
-        super(Execute, self).__init__(1000, 600, 'Mallcrawl', vsync=False, resizable=False)
+        super(Execute, self).__init__(1000, 600, caption='Mallcrawl', vsync=False, resizable=True)
         self.dt = 0
         self.fps = 1/60.0
         self.end = False
+        pyglet.font.add_file('data/Ubuntu-Regular.ttf')
         Global.main = self
         Global.r = Random()
         Global.map_view = MapView()

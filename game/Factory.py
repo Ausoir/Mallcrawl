@@ -27,7 +27,7 @@ class Factory:
             'Bag': [Item, 'g_6x2', ['L:1', 'ob:4']],
             'Pickaxe': [Item, 'g_7x2', ['L:3', 'ob:4']],
             'Nightstick': [Item, 'g_8x2', ['L:1', 'ob:4']],
-            'Shovel': [Item, 'g_9x2', ['L:2', 'ob:4']],
+            'Shovel': [Item, 'g_9x2', ['L:3', 'ob:4']],
             'Airhorn': [Item, 'g_10x2', ['L:2', 'ob:5']],
             'Ducttape': [Prop, 'g_11x2', ['ob:0']],
             'Chair': [Item, 'g_4x2', ['L:2', 'ob:4']],

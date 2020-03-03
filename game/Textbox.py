@@ -11,6 +11,7 @@ class Textbox:
         self.transparent = (0, 0, 0, 0)
         self.visible = True
         self.text = Label('', x=0, y=-1000,
+                          font_name='Ubuntu',
                           font_size=24,
                           group=Global.draw_group.group_gui,
                           color=self.color,

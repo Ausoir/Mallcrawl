@@ -159,7 +159,7 @@ class Unit(Item):
                     if thing.name == 'Ducttape' and self.weapon and self.weapon.removed == 0:
                         self.sound('buff')
                         thing.remove()
-                        self.weapon.tags.increment('L', 2)
+                        self.weapon.tags.increment('L', 3)
                         self.delay += 4
                         return True
                     elif thing.name == 'Food':
